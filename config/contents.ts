@@ -37,7 +37,7 @@ export const featureCards: ContentSection = {
 
 export const features: ContentSection = {
   header: `Features`,
-  subheader: `Why use worldforager?`,
+  subheader: `Why use autoSearch?`,
   image: `/features-img.webp`,
   content: [
     {
