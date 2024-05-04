@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import OpenAI from "openai"
+import { createSearchQuery } from "@/lib/database/searchQuery"
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 const openai = new OpenAI({
@@ -11,7 +12,12 @@ const getFirstPrompt = (searchQuery: string) => {
   Create a comprehensive set of steps in order to answer the query:
   '${searchQuery}'. 
   
-  List 10 subtasks needed to find the answer to the query.`
+  List 10 subtasks web search queries needed to find the answer to the query.
+  These will be only questions that you can find answers to by doing online queries.
+  For each subtask formulate a web search query. 
+  Afterwards you will perform an web search query and analyze the answers for 
+  a comprehensive answer.
+  `
 }
 
 export const POST = async (req: NextRequest): Promise<Response> => {
@@ -32,11 +38,19 @@ export const POST = async (req: NextRequest): Promise<Response> => {
 
     if (completion.choices[0]) {
       console.log("OpenAI response: ", completion.choices[0].message.content)
+      const searchQueryId = await createSearchQuery({
+        query: searchQuery,
+        userId: "123",
+        result: completion.choices[0].message.content,
+      })
+      console.log("searchQueryId", searchQueryId)
+
       return new Response(
         JSON.stringify([
           {
             title: "substeps ",
             content: completion.choices[0].message.content,
+            queryId: searchQueryId,
           },
         ])
       )

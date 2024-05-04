@@ -54,8 +54,11 @@ const AutoSearch = () => {
             <AccordionTrigger>Intermediate steps</AccordionTrigger>
             <AccordionContent>
               {(searchResults || []).map((result, index) => (
-                <div key={index} title={result.title}>
-                  <div>{result.content}</div>
+                <div key={index} title={result.title} className="flex flex-col">
+                  <div className="text-sm">{result.content}</div>
+                  <div className="text-xs text-gray-400">
+                    query id: {result.queryId}
+                  </div>
                 </div>
               ))}
             </AccordionContent>

@@ -1,0 +1,84 @@
+"use server"
+
+import prisma from "@/lib/db"
+
+export const createSearchQuery = async (queryText: string) => {
+  return await prisma.searchQuery.create({
+    data: {
+      query: queryText,
+    },
+  })
+}
+
+export const updateSearchQuery = async (
+  searchQueryId: string,
+  newQueryText: string
+) => {
+  return await prisma.searchQuery.update({
+    where: { id: searchQueryId },
+    data: { query: newQueryText },
+  })
+}
+
+export const fetchSearchQueryById = async (searchQueryId: string) => {
+  return await prisma.searchQuery.findUnique({
+    where: { id: searchQueryId },
+  })
+}
+export const fetchSearchQueriesByUser = async (userId: string) => {
+  return await prisma.searchQuery.findUnique({
+    where: { id: userId },
+  })
+}
+
+export const createSubtask = async (searchQueryId: string, content: string) => {
+  return await prisma.subtask.create({
+    data: {
+      content: content,
+      searchQueryId: searchQueryId,
+    },
+  })
+}
+
+export const updateSubtask = async (subtaskId: string, newContent: string) => {
+  return await prisma.subtask.update({
+    where: { id: subtaskId },
+    data: { content: newContent },
+  })
+}
+
+export const fetchSubtasksBySearchQueryId = async (searchQueryId: string) => {
+  return await prisma.subtask.findMany({
+    where: { searchQueryId: searchQueryId },
+  })
+}
+export const createSearchResult = async (
+  searchQueryId: string,
+  content: string
+) => {
+  return await prisma.searchResult.create({
+    data: {
+      content: content,
+      searchQueryId: searchQueryId,
+      numberOfUpdates: 0,
+    },
+  })
+}
+
+export const updateSearchResult = async (
+  searchResultId: string,
+  newContent: string
+) => {
+  return await prisma.searchResult.update({
+    where: { id: searchResultId },
+    data: { content: newContent, numberOfUpdates: { increment: 1 } },
+  })
+}
+
+export const fetchSearchResultsBySearchQueryId = async (
+  searchQueryId: string
+) => {
+  return await prisma.searchResult.findMany({
+    where: { searchQueryId: searchQueryId },
+  })
+}
