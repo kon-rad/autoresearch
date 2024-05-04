@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import OpenAI from "openai"
 import { createSearchQuery } from "@/lib/database/searchQuery"
+import { initiateSearchJob } from "@/lib/server/search"
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 const openai = new OpenAI({
@@ -44,13 +45,18 @@ export const POST = async (req: NextRequest): Promise<Response> => {
         result: completion.choices[0].message.content,
       })
       console.log("searchQueryId", searchQueryId)
+      initiateSearchJob({
+        id: searchQueryId.id,
+        query: searchQuery,
+        result: completion.choices[0].message.content,
+      })
 
       return new Response(
         JSON.stringify([
           {
             title: "substeps ",
             content: completion.choices[0].message.content,
-            queryId: searchQueryId,
+            queryId: searchQueryId.id,
           },
         ])
       )

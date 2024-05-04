@@ -2,10 +2,10 @@
 
 import prisma from "@/lib/db"
 
-export const createSearchQuery = async (queryText: string) => {
+export const createSearchQuery = async (data: any) => {
   return await prisma.searchQuery.create({
     data: {
-      query: queryText,
+      ...data,
     },
   })
 }
@@ -26,16 +26,15 @@ export const fetchSearchQueryById = async (searchQueryId: string) => {
   })
 }
 export const fetchSearchQueriesByUser = async (userId: string) => {
-  return await prisma.searchQuery.findUnique({
-    where: { id: userId },
+  return await prisma.searchQuery.findMany({
+    where: { userId: userId },
   })
 }
 
-export const createSubtask = async (searchQueryId: string, content: string) => {
+export const createSubtask = async (data: any) => {
   return await prisma.subtask.create({
     data: {
-      content: content,
-      searchQueryId: searchQueryId,
+      ...data,
     },
   })
 }

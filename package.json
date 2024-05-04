@@ -42,6 +42,7 @@
     "electron": "^30.0.1",
     "eslint": "8.45.0",
     "eslint-config-next": "14.0.1",
+    "exa-js": "^1.0.12",
     "ffmpeg-wasm": "^1.0.1",
     "fluent-ffmpeg": "^2.1.2",
     "lucide-react": "^0.263.0",

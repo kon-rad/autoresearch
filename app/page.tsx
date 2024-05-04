@@ -1,16 +1,15 @@
-import Hero from "@/components/pages/hero"
-import FeatureCards from "@/components/pages/feature-cards"
-import Features from "@/components/pages/features"
-import AutoSearch from "@/components/AutoSearch"
+import React, { useState } from "react"
+import AutoSearchContainer from "@/components/AutoSearchContainer"
+import { fetchSearchQueriesByUser } from "@/lib/database/searchQuery"
 
-export default function Home() {
+export default async function Home() {
+  const userSearches = await fetchSearchQueriesByUser("123")
+
+  console.log("userSearches", userSearches)
+
   return (
-    <div className="">
-      <div className="">
-        <div className="mx-auto max-w-screen-xl">
-          <AutoSearch />
-        </div>
-      </div>
+    <div className="flex w-full">
+      <AutoSearchContainer userSearches={userSearches} />
     </div>
   )
 }

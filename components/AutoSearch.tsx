@@ -9,7 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-const AutoSearch = () => {
+const AutoSearch = ({ currentSearch }: any) => {
   const [searchQuery, setSearchQuery] = useState(
     "what is the best ai trend of 2024"
   )
@@ -38,7 +38,7 @@ const AutoSearch = () => {
   console.log("searchResults ", searchResults)
 
   return (
-    <div className="mx-auto my-12 flex w-full flex-col justify-center">
+    <div className="max-w-fullscreen-xl mx-8 my-12 flex flex-col justify-center">
       <div className="flex w-full flex-row items-center">
         <Input
           className="my-4 mr-4 w-full py-2 "
