@@ -1,0 +1,250 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+  directUrl       = "(function)"
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DB_PRISMA_URL")
+  directUrl  = env("DB_URL_NON_POOLING")
+  extensions = [uuid_ossp(map: "uuid-ossp", schema: "extensions"), vector(schema: "extensions")]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  email     String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id                      String                   @id @unique @default(cuid())
+  name                    String?
+  email                   String?                  @unique
+  emailVerified           Boolean?                 @default(false)
+  picture                 String?
+  githubId                Int?                     @unique
+  stripeCustomerId        String?                  @unique @map("stripe_customer_id")
+  stripeSubscriptionId    String?                  @unique @map("stripe_subscription_id")
+  stripePriceId           String?                  @map("stripe_price_id")
+  stripeCurrentPeriodEnd  DateTime?                @map("stripe_current_period_end")
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  Document                Document[]
+  emailVerificationTokens EmailVerificationToken[]
+  projects                Project[]
+  sessions                Session[]
+  EmailList               EmailList[]
+  Tool                    Tool[]
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  name      String
+  domain    String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EmailList {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  campaign  String
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@map("email_lists")
+}
+
+model Tool {
+  id                    String   @id @unique @default(cuid())
+  name                  String
+  description           String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @default(now()) @updatedAt
+  categories            String?
+  createdById           String?
+  imageUrl1             String?
+  imageUrl2             String?
+  imageUrl3             String?
+  imageUrl4             String?
+  appCategoryString     String?
+  status                String?
+  appStoreLink          String?
+  link1                 String?
+  link1Label            String?
+  link2                 String?
+  link2Label            String?
+  link3                 String?
+  link3Label            String?
+  link4                 String?
+  link4Label            String?
+  subtext               String?
+  migrateVersionId      String?
+  slug                  String?
+  viewCount             Int?     @default(0)
+  clapCount             Int?     @default(0)
+  creatorEmail          String?
+  appleDescription      String?
+  appleId               String?
+  appleScreenshots      String?
+  currency              String?
+  currentVersionReviews String?
+  currentVersionScore   String?
+  developer             String?
+  developerId           String?
+  developerUrl          String?
+  developerWebsite      String?
+  free                  String?
+  genres                String?
+  languages             String?
+  price                 String?
+  released              String?
+  reviews               String?
+  score                 String?
+  updated               String?
+  version               String?
+  createdBy             User?    @relation(fields: [createdById], references: [id])
+
+  @@map("tools")
+}
+
+model Document {
+  id           String    @id @default(uuid())
+  title        String?
+  content      String?
+  userId       String?
+  slug         String?
+  parentFolder String?
+  updatedAt    DateTime? @default(now()) @updatedAt
+  createdAt    DateTime? @default(now())
+  user         User?     @relation(fields: [userId], references: [id])
+}
+
+model Links {
+  id          String    @id @default(cuid())
+  title       String?
+  type        String?
+  url         String?
+  createdAt   DateTime? @default(now())
+  userId      String?
+  upvotes     String?
+  status      String?
+  url2        String?
+  url3        String?
+  url4        String?
+  description String?
+
+  @@map("links")
+}
+
+model WizardGens {
+  id             String    @id @unique @default(uuid())
+  url            String?
+  updatedAt      DateTime? @default(now()) @updatedAt
+  createdAt      DateTime? @default(now())
+  taskId         String?
+  jobId          String?
+  uid            String?
+  renderImageUrl String?
+  errMsg         String?
+  task           String?
+  success        Boolean?
+}
+
+model avpapps {
+  id        BigInt                 @id @default(autoincrement())
+  content   String?
+  metadata  Json?
+  embedding Unsupported("vector")?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model toolsog {
+  id                    String
+  name                  String
+  description           String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @default(now())
+  categories            String?
+  createdById           String?
+  imageUrl1             String?
+  imageUrl2             String?
+  imageUrl3             String?
+  imageUrl4             String?
+  appCategoryString     String?
+  status                String?
+  appStoreLink          String?
+  link1                 String?
+  link1Label            String?
+  link2                 String?
+  link2Label            String?
+  link3                 String?
+  link3Label            String?
+  link4                 String?
+  link4Label            String?
+  subtext               String?
+  migrateVersionId      String?
+  slug                  String?
+  viewCount             Int?     @default(0)
+  clapCount             Int?     @default(0)
+  creatorEmail          String?
+  appleDescription      String?
+  appleId               String?
+  appleScreenshots      String?
+  currency              String?
+  currentVersionReviews String?
+  currentVersionScore   String?
+  developer             String?
+  developerId           String?
+  developerUrl          String?
+  developerWebsite      String?
+  free                  String?
+  genres                String?
+  languages             String?
+  price                 String?
+  released              String?
+  reviews               String?
+  score                 String?
+  updated               String?
+  version               String?
+
+  @@ignore
+}
+
+model Prompt {
+  id        String   @id @default(cuid())
+  content   String?
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  genId     String?
+
+  @@map("prompts")
+}
+
+model Generated {
+  id        String   @id @default(cuid())
+  prompt    String?
+  url       String?
+  type      String?
+  userId    String?
+  model     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  studioId  String?
+}
