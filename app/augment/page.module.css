@@ -1,0 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Jersey+25+Charted&display=swap');
+
+.title {
+    font-family: 'Jersey 25 Charted', sans-serif;
+    color: white;
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
