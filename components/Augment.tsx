@@ -7,7 +7,15 @@ import styles from "./augment.module.css";
 import { AwesomeButton, AwesomeButtonProgress } from "react-awesome-button";
 import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
 
-
+const getAugmentResult = async (inputText : string) => {
+  const response = await fetch("/api/augment_apiXXX", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ inputText }),
+  })
+}
 
 const Augment = () => {
     const [inputText, setInputText] = useState(
@@ -22,6 +30,7 @@ const Augment = () => {
       <AwesomeButton
           style={{ AwesomeButtonStyles }}
           type="disabled"
+          onPress={getAugmentResult(inputText)}
         >
           Augment
         </AwesomeButton>
