@@ -120,13 +120,13 @@ export const initiateSearchJob = async (data: any) => {
       aiAnswer,
       data.query
     )
-    const newAnswerWithCitations = await generateAugmentedTextWithSearchResults(
-      newAnswerResponse,
-      response
-    )
+    // const newAnswerWithCitations = await generateAugmentedTextWithSearchResults(
+    //   newAnswerResponse,
+    //   response
+    // )
     console.log("newAnswerResponse", newAnswerResponse)
     const ansResp = await createSearchResult({
-      content: newAnswerWithCitations,
+      content: newAnswerResponse,
       query: data.query,
       searchQueryId: data.id,
       numberOfUpdates: currAnswer?.numberOfUpdates
