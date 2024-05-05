@@ -1,0 +1,1 @@
+declare module 'react-awesome-button/src/styles/styles.scss';
