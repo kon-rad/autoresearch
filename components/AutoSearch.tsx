@@ -9,6 +9,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { RelatedQuestions } from "@/components/RelatedQuestions" // Import the RelatedQuestions component
+import ReactMarkdown from "react-markdown"
+
 const AutoSearch = ({ currentSearch }: any) => {
   const [subtasksArr, setSubtasksArr] = useState([])
   const [searchAnswers, setSearchAnswers] = useState([])
@@ -16,7 +19,7 @@ const AutoSearch = ({ currentSearch }: any) => {
     currentSearch ? currentSearch.id : null
   )
   const [searchQuery, setSearchQuery] = useState(
-    "what is the best ai trend of 2024"
+    ""
   )
   const [searchResults, setSearchResults] = useState([]) // State to store search results
   const [isPending, startTransition] = useTransition() // useTransition for managing state transitions
@@ -104,7 +107,9 @@ const AutoSearch = ({ currentSearch }: any) => {
       <div className="mt-4">
         <h3 className="text-xl">Result:</h3>
         <div className="text-md flex p-4">
-          {searchAnswers && searchAnswers[0] ? searchAnswers[0].content : ""}
+          <ReactMarkdown className="prose dark:prose-invert">
+            {searchAnswers && searchAnswers[0] ? searchAnswers[0].content : ""}
+          </ReactMarkdown>
         </div>
         <Accordion type="multiple" className="w-full">
           <AccordionItem value="answers">
@@ -112,7 +117,11 @@ const AutoSearch = ({ currentSearch }: any) => {
             <AccordionContent>
               {(searchAnswers || []).map((ans, index) => (
                 <div key={index} title={ans.title} className="flex flex-col">
-                  <div className="text-sm">{ans.content}</div>
+                  <div className="text-sm">
+                    <ReactMarkdown className="prose dark:prose-invert">
+                      {ans.content}
+                    </ReactMarkdown>
+                  </div>
                   <div className="text-xs text-gray-400">
                     {ans.numberOfUpdates}
                   </div>
@@ -125,7 +134,11 @@ const AutoSearch = ({ currentSearch }: any) => {
             <AccordionContent>
               {(searchResults || []).map((result, index) => (
                 <div key={index} title={result.title} className="flex flex-col">
-                  <div className="text-sm">{result.content}</div>
+                  <div className="text-sm">
+                    <ReactMarkdown className="prose dark:prose-invert">
+                      {result.content}
+                    </ReactMarkdown>
+                  </div>
                   <div className="text-xs text-gray-400">
                     query id: {result.queryId}
                   </div>
@@ -144,6 +157,9 @@ const AutoSearch = ({ currentSearch }: any) => {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+        <div className="w-1/4">
+          <RelatedQuestions searchQueryId={searchQueryId} />
+        </div>
       </div>
     </div>
   )

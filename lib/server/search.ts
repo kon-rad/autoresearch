@@ -5,6 +5,7 @@ import {
   fetchSearchResultsBySearchQueryId,
   createSearchResult,
 } from "@/lib/database/searchQuery"
+import { generateAugmentedTextWithSearchResults } from "@/app/api/augment_api/route"
 
 const openai = new OpenAI()
 
@@ -119,9 +120,13 @@ export const initiateSearchJob = async (data: any) => {
       aiAnswer,
       data.query
     )
+    const newAnswerWithCitations = await generateAugmentedTextWithSearchResults(
+      newAnswerResponse,
+      response
+    )
     console.log("newAnswerResponse", newAnswerResponse)
     const ansResp = await createSearchResult({
-      content: newAnswerResponse,
+      content: newAnswerWithCitations,
       query: data.query,
       searchQueryId: data.id,
       numberOfUpdates: currAnswer?.numberOfUpdates
