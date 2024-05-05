@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/accordion"
 const AutoSearch = ({ currentSearch }: any) => {
   const [subtasksArr, setSubtasksArr] = useState([])
+  const [searchAnswers, setSearchAnswers] = useState([])
   const [searchQueryId, setSearchQueryId] = useState(
     currentSearch ? currentSearch.id : null
   )
@@ -34,6 +35,17 @@ const AutoSearch = ({ currentSearch }: any) => {
         })
         const data = await response.json()
         setSubtasksArr(data) // Assuming the API returns an array of subtasks
+
+        // New fetch call to /api/answers
+        const answersResponse = await fetch("/api/answers", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ searchQueryId }),
+        })
+        const answersData = await answersResponse.json()
+        setSearchAnswers(answersData || [])
       } catch (error) {
         console.error("Error fetching subtasks:", error)
       }
@@ -75,8 +87,7 @@ const AutoSearch = ({ currentSearch }: any) => {
     })
   }
 
-  console.log("searchResults ", searchResults)
-  console.log("searchQueryId ", searchQueryId)
+  console.log("searchAnswers ", searchAnswers)
 
   return (
     <div className="max-w-fullscreen-xl mx-8 my-12 flex flex-col justify-center">
@@ -91,8 +102,25 @@ const AutoSearch = ({ currentSearch }: any) => {
         </Button>
       </div>
       <div className="mt-4">
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="item-1">
+        <h3 className="text-xl">Result:</h3>
+        <div className="text-md flex p-4">
+          {searchAnswers && searchAnswers[0] ? searchAnswers[0].content : ""}
+        </div>
+        <Accordion type="multiple" className="w-full">
+          <AccordionItem value="answers">
+            <AccordionTrigger>Previous Results</AccordionTrigger>
+            <AccordionContent>
+              {(searchAnswers || []).map((ans, index) => (
+                <div key={index} title={ans.title} className="flex flex-col">
+                  <div className="text-sm">{ans.content}</div>
+                  <div className="text-xs text-gray-400">
+                    {ans.numberOfUpdates}
+                  </div>
+                </div>
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="results">
             <AccordionTrigger>Intermediate steps</AccordionTrigger>
             <AccordionContent>
               {(searchResults || []).map((result, index) => (

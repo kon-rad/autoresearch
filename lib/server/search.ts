@@ -3,6 +3,7 @@ import OpenAI from "openai"
 import {
   createSubtask,
   fetchSearchResultsBySearchQueryId,
+  createSearchResult,
 } from "@/lib/database/searchQuery"
 
 const openai = new OpenAI()
@@ -55,24 +56,27 @@ async function getNewAnswerFromAi(
   userQuestion: string
 ) {
   const newAnswerPrompt = `
-  Given this new data from the web search results, update the current answer to the query if it can be improved.
+  Given this new data from the web search results, update the current answer to the query
+  if it can be improved.
   If it doesn't help answer the question then just return the original answer.
+  DO NOT say anything other then the response.
   
   Question: ${userQuestion}
 
-  New Web Search Results Anser: 
+  New Web Search Results: 
   ${newData}
 
   Existing Answer:
   ${currAnswer}
 
+  Only return the new answer. DO NOT include any other text other then the new answer. DO NOT mention web results, or improving the answer. 
   `
   const completion = await openai.chat.completions.create({
     messages: [
       {
         role: "system",
         content:
-          "You are an expert researcher. Your job is to take in the web search result analysis and use it to improve the original answer to the question.",
+          "You are an expert researcher. Your job is to take in the web search result analysis and use it to improve the original answer to the question. DO NOT mention web results, or improving the answer. ",
       },
       { role: "user", content: newAnswerPrompt },
     ],
@@ -114,9 +118,16 @@ export const initiateSearchJob = async (data: any) => {
       currAnswerContent,
       aiAnswer,
       data.query
-    );
-    console.log('newAnswerResponse', newAnswerResponse);
-    
+    )
+    console.log("newAnswerResponse", newAnswerResponse)
+    const ansResp = await createSearchResult({
+      content: newAnswerResponse,
+      query: data.query,
+      searchQueryId: data.id,
+      numberOfUpdates: currAnswer?.numberOfUpdates
+        ? currAnswer?.numberOfUpdates + 1
+        : 1,
+    })
 
     const cResp = await createSubtask({
       result: aiAnswer,

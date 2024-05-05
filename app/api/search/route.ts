@@ -44,6 +44,8 @@ export const POST = async (req: NextRequest): Promise<Response> => {
         userId: "123",
         result: completion.choices[0].message.content,
       })
+
+      
       console.log("searchQueryId", searchQueryId)
       initiateSearchJob({
         id: searchQueryId.id,

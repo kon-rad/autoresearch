@@ -259,8 +259,9 @@ model SearchQuery {
   userId    String?
   result    String   @db.Text
 
-  subtasks      Subtask[]
-  searchResults SearchResult[]
+  subtasks         Subtask[]
+  searchResults    SearchResult[]
+  RelatedQuestions RelatedQuestions[]
 }
 
 model Subtask {
@@ -283,4 +284,14 @@ model SearchResult {
   query           String      @db.Text
   searchQueryId   String
   searchQuery     SearchQuery @relation(fields: [searchQueryId], references: [id])
+}
+
+model RelatedQuestions {
+  id            String      @id @default(cuid())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  question      String?     @db.Text
+  originalQuery String?     @db.Text
+  searchQueryId String
+  searchQuery   SearchQuery @relation(fields: [searchQueryId], references: [id])
 }

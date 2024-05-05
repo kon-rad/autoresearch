@@ -21,14 +21,14 @@ export default function AutoSearchContainer({ userSearches }: any) {
         {isSearchesVisible ? "<" : ">"}
       </button>
       {isSearchesVisible && (
-        <div className="w-1/3">
+        <div className="w-1/4">
           <UserSearches
             searches={userSearches}
             setCurrentSearch={setCurrentSearch}
           />
         </div>
       )}
-      <div className={`${isSearchesVisible ? "w-2/3" : "w-full"} mx-auto`}>
+      <div className={`${isSearchesVisible ? "w-3/4" : "w-full"} mx-auto`}>
         <AutoSearch currentSearch={currentSearch} />
       </div>
     </div>

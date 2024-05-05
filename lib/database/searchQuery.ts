@@ -77,9 +77,41 @@ export const fetchSearchResultsBySearchQueryId = async (
     orderBy: { createdAt: "desc" },
   })
 }
+export const fetchAllSearchResultsBySearchQueryId = async (
+  searchQueryId: string
+) => {
+  return await prisma.searchResult.findMany({
+    where: { searchQueryId: searchQueryId },
+    orderBy: { createdAt: "desc" },
+  })
+}
 
 export const fetchAllSearchResultsSorted = async () => {
   return await prisma.searchResult.findMany({
     orderBy: { createdAt: "desc" },
+  })
+}
+
+export const getRelatedQuestionsBySearchQueryId = async ({
+  searchQueryId,
+}: {
+  searchQueryId: string
+}) => {
+  return await prisma.relatedQuestions.findMany({
+    where: {
+      searchQueryId: searchQueryId,
+    },
+  })
+}
+
+export const createRelatedQuestion = async (data: {
+  question?: string
+  originalQuery?: string
+  searchQueryId: string
+}) => {
+  return await prisma.relatedQuestions.create({
+    data: {
+      ...data,
+    },
   })
 }
