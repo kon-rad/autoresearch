@@ -2,10 +2,10 @@
 
 import prisma from "@/lib/db"
 
-export const createSearchQuery = async (queryText: string) => {
+export const createSearchQuery = async (data: any) => {
   return await prisma.searchQuery.create({
     data: {
-      query: queryText,
+      ...data,
     },
   })
 }
@@ -26,16 +26,15 @@ export const fetchSearchQueryById = async (searchQueryId: string) => {
   })
 }
 export const fetchSearchQueriesByUser = async (userId: string) => {
-  return await prisma.searchQuery.findUnique({
-    where: { id: userId },
+  return await prisma.searchQuery.findMany({
+    where: { userId: userId },
   })
 }
 
-export const createSubtask = async (searchQueryId: string, content: string) => {
+export const createSubtask = async (data: any) => {
   return await prisma.subtask.create({
     data: {
-      content: content,
-      searchQueryId: searchQueryId,
+      ...data,
     },
   })
 }
@@ -52,15 +51,10 @@ export const fetchSubtasksBySearchQueryId = async (searchQueryId: string) => {
     where: { searchQueryId: searchQueryId },
   })
 }
-export const createSearchResult = async (
-  searchQueryId: string,
-  content: string
-) => {
+export const createSearchResult = async (data: any) => {
   return await prisma.searchResult.create({
     data: {
-      content: content,
-      searchQueryId: searchQueryId,
-      numberOfUpdates: 0,
+      ...data,
     },
   })
 }
@@ -78,7 +72,14 @@ export const updateSearchResult = async (
 export const fetchSearchResultsBySearchQueryId = async (
   searchQueryId: string
 ) => {
-  return await prisma.searchResult.findMany({
+  return await prisma.searchResult.findFirst({
     where: { searchQueryId: searchQueryId },
+    orderBy: { createdAt: "desc" },
+  })
+}
+
+export const fetchAllSearchResultsSorted = async () => {
+  return await prisma.searchResult.findMany({
+    orderBy: { createdAt: "desc" },
   })
 }
