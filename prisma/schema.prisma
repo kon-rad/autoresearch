@@ -267,17 +267,20 @@ model Subtask {
   id            String      @id @default(cuid())
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-  content       String      @db.Text
-  result    String   @db.Text
+  query         String      @db.Text
+  result        String      @db.Text
+  analysis      String      @db.Text
   searchQueryId String
   searchQuery   SearchQuery @relation(fields: [searchQueryId], references: [id])
 }
 
 model SearchResult {
   id              String      @id @default(cuid())
+  createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   numberOfUpdates Int
   content         String      @db.Text
+  query           String      @db.Text
   searchQueryId   String
   searchQuery     SearchQuery @relation(fields: [searchQueryId], references: [id])
 }

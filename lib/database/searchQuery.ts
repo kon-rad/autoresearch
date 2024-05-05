@@ -51,15 +51,10 @@ export const fetchSubtasksBySearchQueryId = async (searchQueryId: string) => {
     where: { searchQueryId: searchQueryId },
   })
 }
-export const createSearchResult = async (
-  searchQueryId: string,
-  content: string
-) => {
+export const createSearchResult = async (data: any) => {
   return await prisma.searchResult.create({
     data: {
-      content: content,
-      searchQueryId: searchQueryId,
-      numberOfUpdates: 0,
+      ...data,
     },
   })
 }
@@ -77,7 +72,14 @@ export const updateSearchResult = async (
 export const fetchSearchResultsBySearchQueryId = async (
   searchQueryId: string
 ) => {
-  return await prisma.searchResult.findMany({
+  return await prisma.searchResult.findFirst({
     where: { searchQueryId: searchQueryId },
+    orderBy: { createdAt: "desc" },
+  })
+}
+
+export const fetchAllSearchResultsSorted = async () => {
+  return await prisma.searchResult.findMany({
+    orderBy: { createdAt: "desc" },
   })
 }
