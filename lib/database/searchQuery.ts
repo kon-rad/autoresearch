@@ -28,6 +28,7 @@ export const fetchSearchQueryById = async (searchQueryId: string) => {
 export const fetchSearchQueriesByUser = async (userId: string) => {
   return await prisma.searchQuery.findMany({
     where: { userId: userId },
+    orderBy: { createdAt: 'desc' },
   })
 }
 

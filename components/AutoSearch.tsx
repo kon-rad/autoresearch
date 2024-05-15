@@ -11,6 +11,13 @@ import {
 } from "@/components/ui/accordion"
 import { RelatedQuestions } from "@/components/RelatedQuestions" // Import the RelatedQuestions component
 import ReactMarkdown from "react-markdown"
+import {
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+  Card,
+} from "@/components/ui/card";
 
 const AutoSearch = ({ currentSearch }: any) => {
   const [subtasksArr, setSubtasksArr] = useState([])
@@ -23,6 +30,13 @@ const AutoSearch = ({ currentSearch }: any) => {
   )
   const [searchResults, setSearchResults] = useState([]) // State to store search results
   const [isPending, startTransition] = useTransition() // useTransition for managing state transitions
+
+  useEffect(() => {
+    if (currentSearch && currentSearch.id) {
+      setSearchQueryId(currentSearch.id);
+      setSearchQuery(currentSearch.query)
+    }
+  }, [currentSearch])
 
   useEffect(() => {
     console.log("searchQueryId called", searchQueryId)
@@ -93,24 +107,34 @@ const AutoSearch = ({ currentSearch }: any) => {
   console.log("searchAnswers ", searchAnswers)
 
   return (
-    <div className="max-w-fullscreen-xl mx-8 my-12 flex flex-col justify-center">
-      <div className="flex w-full flex-row items-center">
+    <div className="flex-grow flex max-w-fullscreen-xl mx-8 my-12 flex flex-col justify-center">
+      <div className="flex flex-grow flex flex-row items-center">
         <Input
-          className="my-4 mr-4 w-full py-2 "
+          className="my-4 mr-4 flex-grow flex py-2 "
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSearch();
+            }
+          }}
         />
         <Button onClick={handleSearch} disabled={isPending}>
           {isPending ? "Searching..." : "Search"}
         </Button>
       </div>
       <div className="mt-4">
-        <h3 className="text-xl">Result:</h3>
-        <div className="text-md flex p-4">
-          <ReactMarkdown className="prose dark:prose-invert">
-            {searchAnswers && searchAnswers[0] ? searchAnswers[0].content : ""}
-          </ReactMarkdown>
-        </div>
+        <Card className="">
+          <CardHeader>
+            <CardTitle>Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ReactMarkdown className="prose dark:prose-invert">
+              {searchAnswers && searchAnswers[0] ? searchAnswers[0].content : ""}
+            </ReactMarkdown>
+          </CardContent>
+        </Card>
+
         <Accordion type="multiple" className="w-full">
           <AccordionItem value="answers">
             <AccordionTrigger>Previous Results</AccordionTrigger>
@@ -149,7 +173,9 @@ const AutoSearch = ({ currentSearch }: any) => {
                 {(subtasksArr || []).map((st: any) => {
                   return (
                     <div key={st.id} className="my-2 w-full text-xs">
+                    <ReactMarkdown className="prose dark:prose-invert">
                       {st.analysis}
+                    </ReactMarkdown>
                     </div>
                   )
                 })}

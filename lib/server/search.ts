@@ -6,8 +6,15 @@ import {
   createSearchResult,
 } from "@/lib/database/searchQuery"
 import { generateAugmentedTextWithSearchResults } from "@/app/api/augment_api/route"
+import { askLlamma3 } from "./llama"
+import { askGPT } from "./gpt"
 
 const openai = new OpenAI()
+const shortenText = (str: string) => {
+  // const words = str.split(' ');
+  // return words.slice(0, 5000).join(' ');
+  return str.substring(0, 30000)
+}
 
 async function getQueryFromAi(searchQuery: string) {
   const completion = await openai.chat.completions.create({
@@ -29,20 +36,40 @@ async function getQueryFromAi(searchQuery: string) {
 
 async function getAnswerFromAi(exaAnswer: string, userQuestion: string) {
   const exaPrompt = `
-  Formulate an answer based on this web search results:
-  Question: ${userQuestion}
+Formulate a 1,000 word research paper that answers the question based on the provided research
+that was done by your assistant. Take some time to think about it and answer the question
+very carefully.
 
-  Web Search Results: 
-  ${exaAnswer}
+Cite search results using [\${{number}}](URL) notation. Only cite the most
+relevant results that answer the question accurately. Place these citations at the end
+of the sentence or paragraph that reference them - do not put them all at the end. If
+different results refer to different entities within the same name, write separate
+answers for each entity. If you want to cite multiple results for the same sentence,
+format it as \`[\${{number1}}](URL) [\${{number2}}](URL)\`. However, you should NEVER do this with the
+same number - if you want to cite \`number1\` multiple times for a sentence, only do
+\`[\${{number1}}](URL)\` not \`[\${{number1}}](URL) [\${{number1}}](URL)\`
+Include the URL when citing a source.
 
+You should use bullet points in your answer for readability. Put citations where they apply
+rather than putting them all at the end.
 
-  `
+Question: ${userQuestion} 
+
+Research results provided by your assistant: 
+${exaAnswer}
+Only return the research paper, do not add any prefix text. Do not say "based on the web results"
+or anything of that kind.
+
+`
+  const answerAgentSystemPrompt = `
+You are an expert researcher. Your job is to take in the web search results 
+and formulate an answer response to a question.
+`
   const completion = await openai.chat.completions.create({
     messages: [
       {
         role: "system",
-        content:
-          "You are an expert researcher. Your job is to take in the web search results and formulate an answer response to a question.",
+        content: answerAgentSystemPrompt,
       },
       { role: "user", content: exaPrompt },
     ],
@@ -56,28 +83,48 @@ async function getNewAnswerFromAi(
   newData: string,
   userQuestion: string
 ) {
+  const AnswerSystemPrompt = `
+  "You are an expert researcher. Your job is to take in the web search result analysis and use it to improve the original answer to the question. 
+  DO NOT mention web results, or improving the answer.
+  DO NOT RETURN ANYTHING OTHER THEN THE RESULT.`
   const newAnswerPrompt = `
-  Given this new data from the web search results, update the current answer to the query
-  if it can be improved.
-  If it doesn't help answer the question then just return the original answer.
-  DO NOT say anything other then the response.
-  
-  Question: ${userQuestion}
+You are an expert writer and researcher. Analyze the writings that was provided to
+you by your and compose a 1,000 word research paper that 
+answers the user question and references the given writings.
 
-  New Web Search Results: 
-  ${newData}
+Given this new data from the first research paper, update the current synthesized research paper
+in how it addresses and answers the user question.
+DO NOT say anything other then the response.
+Cite search results using [\${{number}}](URL) notation. Only cite the most
+relevant results that answer the question accurately. Place these citations at the end
+of the sentence or paragraph that reference them - do not put them all at the end. If
+different results refer to different entities within the same name, write separate
+answers for each entity. If you want to cite multiple results for the same sentence,
+format it as \`[\${{number1}}](URL) [\${{number2}}](URL)\`. However, you should NEVER do this with the
+same number - if you want to cite \`number1\` multiple times for a sentence, only do
+\`[\${{number1}}](URL)\` not \`[\${{number1}}](URL) [\${{number1}}](URL)\`
+Include the URL when citing a source.
 
-  Existing Answer:
-  ${currAnswer}
+You should use bullet points in your answer for readability. Put citations where they apply
+rather than putting them all at the end.
 
-  Only return the new answer. DO NOT include any other text other then the new answer. DO NOT mention web results, or improving the answer. 
-  `
+Question: ${userQuestion}
+
+New Research Paper: 
+${newData}
+
+Existing Research Paper:
+${currAnswer}
+
+Only return the new research paper. DO NOT include any other text other then the new answer. 
+DO NOT mention the research assistant or the research paper.
+ONLY RETURN THE CONTENT OF THE RESULT.
+`
   const completion = await openai.chat.completions.create({
     messages: [
       {
         role: "system",
-        content:
-          "You are an expert researcher. Your job is to take in the web search result analysis and use it to improve the original answer to the question. DO NOT mention web results, or improving the answer. ",
+        content: AnswerSystemPrompt,
       },
       { role: "user", content: newAnswerPrompt },
     ],
@@ -95,8 +142,7 @@ export const initiateSearchJob = async (data: any) => {
   Your job is to handle this one query that is your focus. 
   The primary question is: ${data.query}.
 
-
-  Your job is to do write a web search for the query number ${i + 1} from this list:
+  Your job is to do write a web search query for the query number ${i + 1} from this list:
   This list is a list of sub queries that you must perform.
   Only handle query number ${i + 1} from this query:
   ${data.response}
@@ -104,7 +150,7 @@ export const initiateSearchJob = async (data: any) => {
     const newQuery = await getQueryFromAi(searchQuery)
     console.log("newQuery ", newQuery)
     const response = await performExaSearch(newQuery)
-    console.log("response ", i, response)
+    console.log("response from exa that is summarized:  ", i, response)
     const aiAnswer = await getAnswerFromAi(response, data.query)
     console.log("ai answer ", aiAnswer)
     // update the answer if it is helpful
@@ -161,10 +207,61 @@ export const performExaSearch = async (query: string) => {
   // publishedDate: "2023-03-14",
   // author: "Will Douglas Heaven",
   // text:
+  const getSummary = async (resArr: any, query: string) => {
+    const sumSystemPrompt = `You are an expert summarizer AI assistant.`
+    const sumUserPrompt = `
+Summarize the following content, paying special attention to how 
+it addresses the question posed by the user.
+ONLY RETURN THE SUMMARY, DO NOT INCLUDE ANYTHING ELSE.
+Cite search results using [\${{number}}](URL) notation. Only cite the most
+relevant results that answer the question accurately. Place these citations at the end
+of the sentence or paragraph that reference them - do not put them all at the end. If
+different results refer to different entities within the same name, write separate
+answers for each entity. If you want to cite multiple results for the same sentence,
+format it as \`[\${{number1}}](URL) [\${{number2}}](URL)\`. However, you should NEVER do this with the
+same number - if you want to cite \`number1\` multiple times for a sentence, only do
+\`[\${{number1}}](URL)\` not \`[\${{number1}}](URL) [\${{number1}}](URL)\`
+Include the URL when citing a source.
+
+You should use bullet points in your answer for readability. Put citations where they apply
+rather than putting them all at the end.
+
+    
+The question:
+${query}
+
+The content:
+${shortenText(resArr.join(`\n\n`))}
+    
+REMEMBER: Only return the summary.
+`
+    const sumMessages = [
+      {
+        role: "system",
+        content: sumSystemPrompt,
+      },
+      { role: "user", content: sumUserPrompt },
+    ]
+    console.log("sumMessages: ", sumMessages)
+
+    // const res = await askLlamma3(sumMessages, false);
+    const res = await askGPT(sumMessages)
+    return res
+  }
+  const getSummariesInBatches = async (exaResPrompt: string[]) => {
+    const batchPromises = []
+    const numOfRes = 2
+    for (let i = 0; i < exaResPrompt.length; i += numOfRes) {
+      const batch = exaResPrompt.slice(i, i + numOfRes)
+      batchPromises.push(getSummary(batch, query))
+    }
+    const summaries = await Promise.all(batchPromises)
+    return summaries.flat()
+  }
   const exaResPrompt = exaRes.map(
     (res: any) => `
     title: ${res.title}
-    url: ${res.title}
+    url: ${res.url}
     published date: ${res.publishedDate}
     author: ${res.author}
     text: ${res.text}
@@ -172,5 +269,7 @@ export const performExaSearch = async (query: string) => {
   `
   )
 
-  return exaResPrompt.join("\n\n")
+  const summaries = await getSummariesInBatches(exaResPrompt)
+
+  return summaries.join("\n\n")
 }

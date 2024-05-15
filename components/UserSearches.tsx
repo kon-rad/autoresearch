@@ -14,7 +14,7 @@ const UserSearches: React.FC<UserSearchesProps> = ({
   setCurrentSearch,
 }) => {
   return (
-    <div className="mx-4 h-full overflow-auto">
+    <div className="mx-4 h-full overflow-y-auto max-h-[1500px]">
       {searches.map((search) => (
         <div
           key={search.id}

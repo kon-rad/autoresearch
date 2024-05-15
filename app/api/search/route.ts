@@ -9,15 +9,12 @@ const openai = new OpenAI({
 })
 
 const getFirstPrompt = (searchQuery: string) => {
-  return `You are an expert research agent.
-  Create a comprehensive set of steps in order to answer the query:
-  '${searchQuery}'. 
-  
-  List 10 subtasks web search queries needed to find the answer to the query.
-  These will be only questions that you can find answers to by doing online queries.
-  For each subtask formulate a web search query. 
-  Afterwards you will perform an web search query and analyze the answers for 
-  a comprehensive answer.
+  return `You are an expert AI researching agent.
+Create a set of 10 web search queries that will help you best
+write a research paper that addresses and answers the following question.
+'${searchQuery}'. 
+
+Remember Only return the list of 10 web search queries and nothing else.
   `
 }
 

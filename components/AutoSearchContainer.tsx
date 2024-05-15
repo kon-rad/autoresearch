@@ -6,9 +6,10 @@ import FeatureCards from "@/components/pages/feature-cards"
 import Features from "@/components/pages/features"
 import AutoSearch from "@/components/AutoSearch"
 import UserSearches from "@/components/UserSearches"
+import Sidebar from "./layout/sidebar"
 
 export default function AutoSearchContainer({ userSearches }: any) {
-  const [isSearchesVisible, setIsSearchesVisible] = useState(true)
+  const [isSearchesVisible, setIsSearchesVisible] = useState(false)
   const [currentSearch, setCurrentSearch] = useState()
 
   const toggleSearches = () => {
@@ -16,21 +17,14 @@ export default function AutoSearchContainer({ userSearches }: any) {
   }
 
   return (
-    <div className="flex w-full">
-      <button onClick={toggleSearches} className="p-2 text-xl">
-        {isSearchesVisible ? "<" : ">"}
-      </button>
-      {isSearchesVisible && (
-        <div className="w-1/4">
-          <UserSearches
-            searches={userSearches}
-            setCurrentSearch={setCurrentSearch}
-          />
-        </div>
-      )}
-      <div className={`${isSearchesVisible ? "w-3/4" : "w-full"} mx-auto`}>
+    <div className="flex h-screen border-collapse overflow-hidden w-full">
+        <Sidebar
+          searches={userSearches}
+          setCurrentSearch={setCurrentSearch}
+        />
+      <main className="max-w-screen-xl mx-auto flex-1 overflow-y-auto overflow-x-hidden pt-10 bg-secondary/10 pb-1">
         <AutoSearch currentSearch={currentSearch} />
-      </div>
+      </main>
     </div>
   )
 }
