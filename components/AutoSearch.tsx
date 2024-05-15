@@ -155,18 +155,6 @@ const AutoSearch = ({ currentSearch }: any) => {
                       </div>
                     </div>
                   ))}
-                  <h3 className="text-md my-4">subtasks:</h3>
-                  <div className="my-2 flex flex-col">
-                    {(subtasksArr || []).map((st: any) => {
-                      return (
-                        <div key={st.id} className="my-2 w-full text-xs">
-                        <ReactMarkdown className="prose dark:prose-invert">
-                          {st.analysis}
-                        </ReactMarkdown>
-                        </div>
-                      )
-                    })}
-                  </div>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="subqueries">
