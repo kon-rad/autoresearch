@@ -5,30 +5,27 @@ import { SiteConfig, ContactConfig } from "@/types"
 -- Fill the details about your website
  ==================== */
 
-const baseUrl = "https://nextlanding.rdev.pro"
+const baseUrl = "https://autosearch.lol"
 
 export const siteConfig: SiteConfig = {
   name: "autoSearch",
-  author: "redpangilinan",
+  author: "kon-rad",
   description:
-    "Easy to setup, customizable, quick, and responsive landing page starter built with Next.js and shadcn/ui.",
+    "autosearch is the AI search tool to navigate the deep knowledge of the internet",
   keywords: [
-    "Next.js",
-    "React",
-    "Tailwind CSS",
-    "Radix UI",
-    "shadcn/ui",
-    "Landing Page",
-    "Template",
-    "Starter",
+    "search",
+    "AI",
+    "agents",
+    "superhuman intelligence",
+    "agi"
   ],
   url: {
     base: baseUrl,
-    author: "https://redpangilinan.live",
+    author: "https://konradgnat.com",
   },
   ogImage: `${baseUrl}/og.jpg`,
 }
 
 export const contactConfig: ContactConfig = {
-  email: "janreynald.pangilinan@gmail.com",
+  email: "syndcuer@gmail.com",
 }

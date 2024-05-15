@@ -17,7 +17,7 @@ export default function HeroHeader() {
           </h2>
         </div>
         <Link
-          href="https://github.com/redpangilinan/next-shadcn-landing"
+          href="/"
           target="_blank"
           className={`w-[10rem] ${cn(buttonVariants({ size: "lg" }))}`}
         >

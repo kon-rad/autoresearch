@@ -105,6 +105,8 @@ const AutoSearch = ({ currentSearch }: any) => {
   }
 
   console.log("searchAnswers ", searchAnswers)
+  console.log('subtasksArr: ', subtasksArr);
+  
 
   return (
     <div className="flex-grow flex max-w-fullscreen-xl mx-8 my-12 flex flex-col justify-center">
@@ -129,60 +131,80 @@ const AutoSearch = ({ currentSearch }: any) => {
             <CardTitle>Results</CardTitle>
           </CardHeader>
           <CardContent>
-            <ReactMarkdown className="prose dark:prose-invert">
-              {searchAnswers && searchAnswers[0] ? searchAnswers[0].content : ""}
-            </ReactMarkdown>
+            <Accordion type="multiple" className="w-full">
+              <AccordionItem value="result">
+                <AccordionTrigger>Result</AccordionTrigger>
+                <AccordionContent>
+                  <ReactMarkdown className="prose dark:prose-invert">
+                    {searchAnswers && searchAnswers[0] ? searchAnswers[0].content : ""}
+                  </ReactMarkdown>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="intermediate">
+                <AccordionTrigger>Intermediate steps</AccordionTrigger>
+                <AccordionContent>
+                  {(searchResults || []).map((result, index) => (
+                    <div key={index} title={result.title} className="flex flex-col">
+                      <div className="text-sm">
+                        <ReactMarkdown className="prose dark:prose-invert">
+                          {result.content}
+                        </ReactMarkdown>
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        query id: {result.queryId}
+                      </div>
+                    </div>
+                  ))}
+                  <h3 className="text-md my-4">subtasks:</h3>
+                  <div className="my-2 flex flex-col">
+                    {(subtasksArr || []).map((st: any) => {
+                      return (
+                        <div key={st.id} className="my-2 w-full text-xs">
+                        <ReactMarkdown className="prose dark:prose-invert">
+                          {st.analysis}
+                        </ReactMarkdown>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="subqueries">
+                <AccordionTrigger>subqueries</AccordionTrigger>
+                <AccordionContent>
+                  <div className="my-2 flex flex-col">
+                    {(subtasksArr || []).map((st: any) => {
+                      return (
+                        <div key={st.id} className="my-2 w-full text-xs">
+                          <ReactMarkdown className="prose dark:prose-invert">
+                            {st.analysis}
+                          </ReactMarkdown>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="answers">
+                <AccordionTrigger>Previous Results</AccordionTrigger>
+                <AccordionContent>
+                  {(searchAnswers || []).map((ans, index) => (
+                    <div key={index} title={ans.title} className="flex flex-col">
+                      <div className="text-sm">
+                        <ReactMarkdown className="prose dark:prose-invert">
+                          {ans.content}
+                        </ReactMarkdown>
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {ans.numberOfUpdates}
+                      </div>
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </CardContent>
         </Card>
-
-        <Accordion type="multiple" className="w-full">
-          <AccordionItem value="answers">
-            <AccordionTrigger>Previous Results</AccordionTrigger>
-            <AccordionContent>
-              {(searchAnswers || []).map((ans, index) => (
-                <div key={index} title={ans.title} className="flex flex-col">
-                  <div className="text-sm">
-                    <ReactMarkdown className="prose dark:prose-invert">
-                      {ans.content}
-                    </ReactMarkdown>
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    {ans.numberOfUpdates}
-                  </div>
-                </div>
-              ))}
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="results">
-            <AccordionTrigger>Intermediate steps</AccordionTrigger>
-            <AccordionContent>
-              {(searchResults || []).map((result, index) => (
-                <div key={index} title={result.title} className="flex flex-col">
-                  <div className="text-sm">
-                    <ReactMarkdown className="prose dark:prose-invert">
-                      {result.content}
-                    </ReactMarkdown>
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    query id: {result.queryId}
-                  </div>
-                </div>
-              ))}
-              <h3 className="text-md my-4">subtasks:</h3>
-              <div className="my-2 flex flex-col">
-                {(subtasksArr || []).map((st: any) => {
-                  return (
-                    <div key={st.id} className="my-2 w-full text-xs">
-                    <ReactMarkdown className="prose dark:prose-invert">
-                      {st.analysis}
-                    </ReactMarkdown>
-                    </div>
-                  )
-                })}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
         <div className="w-1/4">
           <RelatedQuestions searchQueryId={searchQueryId} />
         </div>
